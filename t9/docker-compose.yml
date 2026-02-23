@@ -1,0 +1,9 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GREETING: ${GREETING}
+    ports:
+      - '${NGINX_PORT}:80'
