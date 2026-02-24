@@ -12,22 +12,22 @@ import (
 func main() {
 	connStr := "host=db user=user password=password dbname=db sslmode=disable"
 
-	var db *sql.DB
 	var err error
 
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for i := 0; i < 5; i++ {
-		db, err = sql.Open("postgres", connStr)
-		if err == nil {
-			err = db.Ping()
-		}
-		if err == nil {
+		if err = db.Ping(); err == nil {
 			break
 		}
 		log.Printf("Попытка %d: не удалось подключиться", i+1)
 		time.Sleep(2 * time.Second)
 	}
-
 	if err != nil {
+		db.Close()
 		log.Fatal("Не удалось подключиться к базе данных:", err)
 	}
 	defer db.Close()
@@ -35,6 +35,7 @@ func main() {
 	var result string
 	err = db.QueryRow("SELECT 'PostgreSQL'").Scan(&result)
 	if err != nil {
+		db.Close()
 		log.Fatal(err)
 	}
 
